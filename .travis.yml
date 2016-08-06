@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: aca7tmggWwyAr1c9hzeKPAhn+n6Vt6uUrx0vFTLaOElf08h+bWqH/0CraaLKtVTPZfKcb69CwVnA46nltG14ROdNWJFwPMr7D37PD+n5xenQRc4N4/NMtdnJmxlH6+XEPRBSPczBRKzH5sBz9waOcuoVx0YLEpC/MTr/8N5duGwIx7I1WZOy/c2YA9d1NIsfA6NUmlC0usMYTdjIsbkmO7DC4hxqB+3kqe6pEmJ0d5nDfesAEAkf0YFyZjmS4yjznYqpvQwEWOaBRMygO7tqBceKhhcCNc7qEEYEk1YLB1c3qCO6+ByJ8YnRct0VVJ50+p+6R7iKWXMofIBXOEUmi4qt77qXBa8TnimhUCjT6PAeDz265vdOOiTwUx8h3tg2lPnTP4qTnZHWP5KJmoAXzozmfj84MTqjW+BrcDHFJv0cZkF7r7ZU7Gh3fWYpI2zZcNXD2NNzG5xjGbMQcO6VW8uS6M9DeBnSpGnzJ876xREvygkmFcGGKUBqbc7GxPCmEWvxeuYzTTt8Qo89eTKhcQuwARo2+FveFYnKi4Y/xdTHlu0F2ZQIftWJjAG/DkanrgSAo6Y5nosH+pClWDO0mW0ZzVHpfSccoVFMNwv9kFMkcdaJ5PhkOZoyZloRA0K/x+ZOPW+IejnBZv053fXABm9MaBKaLyqw6EP2sGMJhoE=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Weir-of-Hermiston--An-Unfinished-Romance_380
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
